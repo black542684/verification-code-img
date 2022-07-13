@@ -1,0 +1,28 @@
+{
+  "name": "verification-code-img",
+  "version": "1.0.0",
+  "description": "Generate captcha",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zhu5317460/verification-code-img.git"
+  },
+  "keywords": [
+    "node",
+    "nodejs",
+    "javascript",
+    "verification code"
+  ],
+  "author": "zhu5317460",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zhu5317460/verification-code-img/issues"
+  },
+  "homepage": "https://github.com/zhu5317460/verification-code-img#readme",
+  "dependencies": {
+    "canvas": "^2.9.3"
+  }
+}
