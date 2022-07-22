@@ -3,10 +3,9 @@ const { randomRange } = require("./utils");
 const { createCanvas, loadImage } = require('canvas');
 const { Colors } = require("./Colors");
 
-/* 
-  npm install screenres --save 屏幕分辨率
-*/
-
+/**
+ * 生成验证码图片工具
+ */
 class VerificationCode {
   static VERIFY_CODES = "123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
@@ -16,8 +15,8 @@ class VerificationCode {
 
   /**
    * 使用指定源生成，指定位数的验证码
-   * @param {int} verifySize 
-   * @param {string} sources 
+   * @param {int} verifySize 验证码长度
+   * @param {string} sources 验证码数据源
    * @return {string}
    */
   static generateVerifyCode(verifySize, sources) {
@@ -103,28 +102,35 @@ class VerificationCode {
       ctx.fillStyle = rgb;
       ctx.fillRect(x, y, 1, 1);
     }
-    // 添加图片扭曲
-    // VerificationCode.shear(ctx, width, height, c);
     
     // 添加文字
     ctx.fillStyle = VerificationCode.getRandColor(100, 160);
-    let fontSize = height - 4;
+    let fontSize = height / 2;
     const font = `italic ${fontSize}px Algerian`;
     ctx.font = font;
     let chars = code.split("");
     
-    for (let i = 0; i < verifySize; i++) {
-      AffineTransform affine = new AffineTransform();
-      affine.setToRotation(Math.PI / 4 * rand.nextDouble() * (rand.nextBoolean() ? 1 : -1), (w / verifySize) * i + fontSize / 2, h / 2);
-      g2.setTransform(affine);
-      g2.drawChars(chars, i, 1, ((w - 10) / verifySize) * i + 5, h / 2 + fontSize / 2 - 10);
-  }
+    
+    for (let i = 0; i < verifySize; i++) {      
+      ctx.save();
+      ctx.translate(
+        (width / verifySize) * i + fontSize / 2, 
+        height / 2
+      ); // 设置旋转中心点
+      const angle = Math.PI / 4 * Math.random() * (Math.random() > 0.5 ? 1 : -1);
+      ctx.rotate(angle); // 设置旋转角度
+      ctx.fillText(chars[i], 0 - fontSize / 2, 0);
+      ctx.restore();
+    }
 
 
 
 
     // 输出
-    const stream = canvas.createJPEGStream();
+    const stream = canvas.createJPEGStream({
+      quality: 1,
+      progressive: true
+    });
     stream.pipe(out);
     out.on('finish', () =>  console.log('The JPEG file was created.'));
 
@@ -170,79 +176,6 @@ class VerificationCode {
       rgb[i] = randomRange(0, 255);
     }
     return rgb;
-  }
-
-
-  static shear(ctx, width, height, color) {
-    VerificationCode.shearX(ctx, width, height, color);
-    VerificationCode.shearY(ctx, width, height, color);
-  }
-
-  static shearX(ctx, width, height, color) {
-
-    let period = randomRange(0, 2);
-
-    const borderGap = true;
-    const frames = 1;
-    const phase = randomRange(0, 2);
-
-    for (let i = 0; i < height; i++) {
-
-        let d = parseInt((period >> 1)
-        * Math.sin( i /  period
-        + (6.2831853071795862 *  phase)
-        / frames));
-
-
-        // 区域复制
-        const imgdata = ctx.getImageData(0, i, width, 1);
-        ctx.putImageData(imgdata, d, 0);
-
-        if (borderGap) {
-          ctx.strokeStyle = color; // 设置颜色
-
-          ctx.moveTo(d, i);
-          ctx.lineTo(0, i);
-          ctx.stroke();
-
-          ctx.moveTo(d + width, i);
-          ctx.lineTo(width, i);
-          ctx.stroke();
-        }
-    }
-  }
-
-  static shearY(ctx, width, height, color) {
-
-    const period = randomRange(0, 40) + 10; // 50;
-
-    const borderGap = true;
-    const frames = 20;
-    const phase = 7;
-
-    for (let i = 0; i < width; i++) {
-        const d = parseInt((period >> 1)
-        * Math.sin(i /  period
-        + (6.2831853071795862 *  phase)
-        /  frames));
-
-        // 区域复制
-        const imgdata = ctx.getImageData(i, 0, 1, height);
-        ctx.putImageData(imgdata, 0, d);
-
-        if (borderGap) {
-          ctx.strokeStyle = color;
-
-          ctx.moveTo(i, d);
-          ctx.lineTo(i, 0);
-          ctx.stroke();
-
-          ctx.moveTo(i, d + height);
-          ctx.lineTo(i, height);
-          ctx.stroke();
-        }
-
-    }
   }
 }
 
